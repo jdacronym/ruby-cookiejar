@@ -7,20 +7,18 @@ class Hash
   # Get all keys associated with a value. That is, reverse a(ll)assoc. 
   def raassoc(value)
     [value,
-     self.inject([]) do |res,pair|
-       k,v = pair
-       res.push k if v == value
-       res
+     self.inject([]) do |acc,(k,v)|
+       acc.push k if v == value
+       acc
      end]
   end
 
   # non-catastropically invert a hash by bucketing equivalent keys. I'm
   # surprised I didn't find this in Hash to begin with.
   def invert_assoc
-    self.inject({}) do |res,pair|
-      k,v = pair
-      res[v] ||= self.raassoc(v)[1]
-      res
+    self.inject({}) do |acc,(k,v)|
+      acc[v] ||= self.raassoc(v)[1]
+      acc
     end
   end
 end
@@ -45,10 +43,8 @@ module Abbrev
     Abbrev::abbrev_assoc(words,pattern).inject({}) do |results, pair|
       k,v = pair
       selection = case width
-                  when Numeric 
-                    v.select{ |e| e.size <= width }
-                  else
-                    v
+                  when Numeric then v.select{ |e| e.size <= width }
+                  else              v
                   end
       results[k] = selection.sort_by{ |e| e.size }.last
       results
