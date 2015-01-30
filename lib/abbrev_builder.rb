@@ -35,30 +35,36 @@ module Abbrev
       rest   = word[1..word.size]
       prefix = tree.select { |subtree| subtree && subtree[0] == first }
       if prefix.empty?
-        if rest.size == 0
-          tree << [ first, [nil] ] 
-        else
-          tree << [ first, add_to_tree(rest) ]
-        end
+        tree <<  [ first, rest.size == 0 ? [nil] : add_to_tree(rest) ]
       else
-        match = prefix[0]
-        case match.length
-        when 1 
-          if rest.size == 0
-            tree
-          else
-             match << add_to_tree(rest, [first])
-          end
-        when 2
-          if rest.size == 0
-            match[1] << nil unless match[1].one? { |e| e.nil? }
-          else
-            add_to_tree rest, match[1]
-          end
-        else        raise MalformedTreeError
-        end
+        add_to_subtree(first,rest,prefix[0])
       end
       tree
+    end
+
+    def self.add_to_subtree(first,rest,tree)
+      if has_children? tree
+        add_to_children(first,rest,tree[1])
+      else
+        tree << add_to_tree(rest, [first]) unless rest.size == 0
+      end
+    end
+
+    def self.has_children?(tree)
+      case tree.length
+      when 1 then false
+      when 2 then true
+      else        raise MalformedTreeError
+      end
+    end
+
+    def self.add_to_children(first,rest,tree)
+      if rest.size == 0
+        # don't double-add nil if we already have this word
+        tree << nil unless tree.one? { |e| e.nil? }
+      else rest.size > 0
+        add_to_tree(rest,tree)
+      end
     end
 
     def self.abbrevs_of(tree)

@@ -46,7 +46,9 @@ describe Builder do
     abbrevs['catt'].should == "cattle"
     abbrevs['car'].should == "car"
   end
+end
 
+describe "Abbrev::Builder string construction" do
   # This part of the spec will have to change if I change my tree
   # representation. Is including this in my spec a mistake? Or will it
   # focus my refactoring better?
@@ -102,5 +104,26 @@ describe Builder do
   it "builds abbreviations from trees" do
     tree = [['c', [['a', [['r',[nil]],['t',[nil]]] ]] ]]
     a = Builder.abbrevs_of(tree).assoc('car').should == 'car'
+  end
+end
+
+describe "Abbrev::Builder abbreviation construction" do
+  a = [['a',[nil]]]
+  # tree containing "a", "aa" and "ab". Should generate:
+  # { "a"  => "a",
+  #   "aa" => "aa",
+  #   "ab" => "ab", }
+  a_aa_ab = [['a', [nil,['a',[nil]],['b',[nil]]] ]]
+
+  it "can read a one-character word from a tree" do
+    abbrevs = Builder.abbrevs_of(a)
+    abbrevs.assoc('a').should == 'a'
+  end
+
+  it "generates abbreviations" do
+    abbrevs = Builder.abbrevs_of(a_aa_ab)
+    abbrevs.assoc('a').should  == 'a'
+    abbrevs.assoc('aa').should == 'aa'
+    abbrevs.assoc('ab').should == 'ab'
   end
 end
