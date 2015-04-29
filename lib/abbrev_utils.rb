@@ -6,11 +6,7 @@ require 'abbrev'
 class Hash
   # Get all keys associated with a value. That is, reverse a(ll)assoc. 
   def raassoc(value)
-    [value,
-     self.inject([]) do |acc,(k,v)|
-       acc.push k if v == value
-       acc
-     end]
+    [value,  self.inject([]) { |acc,(k,v)| acc << k if v == value }]
   end
 
   # non-catastropically invert a hash by bucketing equivalent keys. I'm
